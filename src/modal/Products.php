@@ -11,16 +11,19 @@ class Products
 
     const PRODUCTS = [
         [
+            'id' => 1,
             'code' => 'MG1',
             'name' => 'Mango',
             'price' => 3.11
         ],
         [
+            'id' => 2,
             'code' => 'SR1',
             'name' => 'Strawberries',
             'price' => 5.00
         ],
         [
+            'id' => 3,
             'code' => 'BN1',
             'name' => 'Banana',
             'price' => 11.23
@@ -49,6 +52,6 @@ class Products
      * @return array
      */
     public function first(): array {
-        return $this->product[0];
+        return array_values($this->product)[0];
     }
 }

@@ -7,9 +7,9 @@ use Piash\StrategyPattern\Modal\Products;
 
 class Checkout
 {
-    public $total = 0;
+    public float $total = 0;
 
-    private $cart = [];
+    private array $order = [];
 
     private Products $product;
 
@@ -17,7 +17,7 @@ class Checkout
      * Price rules like 'Buy 1 Get 1' Or Bulk discount offer for specific products
      *
      */
-    public function __construct(private array $priceRules, ?Products $product = null) {
+    public function __construct(?Products $product = null) {
         $this->product = $product ?? new Products();
     }
 
@@ -27,16 +27,35 @@ class Checkout
      * @param string $code
      * @return void
      */
-    public function addByCode(string $code) {
+    public function addByCode(string $code): void {
         $product =  $this->product->where('code', $code)->first();
-        dump($product);
-        // TODO: add item
-        // TODO: calc totaL
-        $this->total = 0;
-
+        if ($product) {
+            $this->order[] = [
+                'product_id' => $product['id']
+            ];
+            // TODO: add item
+            // TODO: calc total
+            $this->total = $this->getTotal();
+        }
     }
 
-    private function getTotal() {
+    /**
+     * @return float
+     */
+    private function getTotal(): float {
+        $order_products = [];
+        foreach ($this->order as $item) {
+            $product =  $this->product->where('id', $item['product_id'])->first();
+            $order_products[$product['code']]['qty'] = isset($order_products[$product['code']]['qty']) ?
+                ++$order_products[$product['code']]['qty'] : 1;
+            $order_products[$product['code']]['price'] = $product['price'];
+        }
 
+        $total = 0;
+        foreach ($order_products as $item) {
+            dump($item['qty'] . '---'. $item['price']);
+            $total +=  $item['qty'] * $item['price'];
+        }
+        return $total;
     }
 }

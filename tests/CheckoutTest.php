@@ -6,20 +6,24 @@ use Piash\StrategyPattern\Service\Checkout;
 
 class CheckoutTest extends TestCase
 {
+    private Checkout $checkout;
+
+    /**
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        $this->checkout = new Checkout();
+    }
 
     public function test_checkout_first() {
-        $priceRules = [
-            'MG1' => ['B1G1'],
-            'SR1' => ['bulk_discount', 3, 4.5]
-        ];
-
-        $checkout = new Checkout($priceRules);
-        $checkout->addByCode('MG1');
-        $checkout->addByCode('SR1');
-        $checkout->addByCode('MG1');
-        $checkout->addByCode('MG1');
-        $checkout->addByCode('BN1');
-        $price = $checkout->total;
+        $this->checkout->addByCode('MG1');
+        $this->checkout->addByCode('SR1');
+        $this->checkout->addByCode('MG1');
+        $this->checkout->addByCode('MG1');
+        $this->checkout->addByCode('BN1');
+        $price = $this->checkout->total;
         $this->assertEquals(20.45, $price);
     }
 
