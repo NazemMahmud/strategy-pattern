@@ -26,7 +26,7 @@ class Products
             'id' => 3,
             'code' => 'BN1',
             'name' => 'Banana',
-            'price' => 11.23
+            'price' => 8.23
         ],
     ];
 
