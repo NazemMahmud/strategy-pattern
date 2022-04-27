@@ -43,7 +43,7 @@ class CheckoutTest extends TestCase
         $this->checkout->addByCode('SR1');
         $price = $this->checkout->total;
         dump('Test 3: Price:: ' . $price);
-        $this->assertEquals(7.61, $price);
+        $this->assertEquals(11.61, $price);
     }
 
 }
