@@ -3,5 +3,5 @@
 namespace Piash\StrategyPattern\Strategy;
 
 interface Offer {
-    public function calculatePrice(int $quantity): float;
+    public function calculatePrice(array $offerRule): float;
 }
