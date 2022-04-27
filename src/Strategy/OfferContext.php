@@ -2,17 +2,21 @@
 
 namespace Piash\StrategyPattern\Strategy;
 
-use PHPUnit\Util\Exception;
 
 class OfferContext
 {
+    /**
+     * Select specific concrete strategy for different type of offer
+     *
+     * @param string $offerName
+     * @return Offer
+     */
     public static function getOfferType(string $offerName): Offer
     {
         return match ($offerName) {
             "B1G1" => new BuyOneGetOne(),
             "Bulk_Discount" => new BulkDiscount(),
-            default => throw new Exception('Unknown Offer'),
+            default => [],
         };
     }
-
 }

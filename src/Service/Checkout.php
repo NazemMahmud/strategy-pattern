@@ -13,15 +13,9 @@ class Checkout
 
     private array $order = [];
 
-    private Products $product;
-
-    /**
-     * Price rules like 'Buy 1 Get 1' Or Bulk discount offer for specific products
-     *
-     */
-    public function __construct(?Products $product = null) {
-        $this->product = $product ?? new Products();
+    public function __construct(protected Products $product) {
     }
+
 
     /**
      * Add new product item into cart using product code
@@ -30,11 +24,11 @@ class Checkout
      * @return void
      */
     public function addByCode(string $code): void {
-        $product =  $this->product->where('code', $code)->first();
-        if ($product) {
-            // add item
+        $item =  $this->product->where('code', $code)->first();
+        if ($item) {
+            // add item in order list
             $this->order[] = [
-                'product_id' => $product['id']
+                'product_id' => $item['id']
             ];
             // calculate total
             $this->total = $this->getTotal();
@@ -50,33 +44,32 @@ class Checkout
         $order_products = [];
         foreach ($this->order as $item) {
             $product =  $this->product->where('id', $item['product_id'])->first();
-            $order_products[$product['code']]['code'] = $product['code'];
-            $order_products[$product['code']]['qty'] = isset($order_products[$product['code']]['qty']) ?
-                ++$order_products[$product['code']]['qty'] : 1;
-            $order_products[$product['code']]['price'] = $product['price'];
+            $code = $product['code'];
+            $order_products[$code]['code'] = $code;
+            $order_products[$code]['qty'] = isset($order_products[$code]['qty']) ?
+                ++$order_products[$code]['qty'] : 1;
+            $order_products[$code]['price'] = $product['price'];
         }
 
         $total = 0;
         foreach ($order_products as $item) {
             // check offer rules
             $offer = Offers::getProductOffer($item['code']);
-            $offerPrice = $this->getFromStrategy($item['code'], $offer);
-//            dump($item['qty'] . '---'. $item['price']);
-            $total += $item['qty'] * $item['price'];
+            $total += $offer ? $this->getFromStrategy(array_merge($item, ['offer' => $offer])) :
+                $item['qty'] * $item['price'];
         }
         return $total;
     }
 
     /**
-     * @param string $code
-     * @param array $offer
+     * Calculate price according to offer strategy
+     *
+     * @param array $product
      * @return float
      */
-    private function getFromStrategy(string $code, array $offer): float {
-        $strategy = OfferContext::getOfferType($offer[$code][0]);
-        dump('******OFFER**********');
-        dump($strategy);
-        dump('****************');
-        return 0.0;
+    private function getFromStrategy(array $product): float {
+        $code = $product['code'];
+        $strategy = OfferContext::getOfferType($product['offer'][$code][0]);
+        return $strategy->calculatePrice($product);
     }
 }
